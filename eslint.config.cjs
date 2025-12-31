@@ -50,6 +50,7 @@ module.exports = defineConfig([
         },
       ],
       'import/no-duplicates': 'warn',
+      'import/no-unresolved': 'off', // TypeScript가 처리하므로 비활성화
 
       // 미사용 import/변수
       'unused-imports/no-unused-imports': 'error',

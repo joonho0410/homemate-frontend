@@ -1,3 +1,15 @@
+// FSD 리팩토링: 기존 코드는 아래에 주석으로 보존
+
+import HomeScreen from '@pages/HomeScreen'
+
+export default function HomePage() {
+  return <HomeScreen />
+}
+/*
+========================================
+기존 코드 (주석 처리 - 롤백용으로 보존)
+========================================
+
 import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -353,7 +365,7 @@ export default function HomeScreen() {
         </View>
       </TabSafeScroll>
 
-      {/* 알림 최초 설정 모달 */}
+      {/* 알림 최초 설정 모달 *\/}
       <Modal visible={showSetupModal} transparent animationType="fade">
         <View style={styles.overlay}>
           <ScrollView
@@ -481,3 +493,5 @@ const styles = StyleSheet.create({
   allowText: { color: '#fff', fontWeight: '700', textAlign: 'center' },
   highlightText: { color: '#46A1A6' },
 })
+
+*/
