@@ -1,67 +1,26 @@
-import { Dispatch, SetStateAction } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 import ChoreDropdown from '@/components/Dropdown/ChoreDropdown'
 import TimeDropdown from '@/components/Dropdown/TimeDropdown'
 import Toggle from '@/components/Toggle'
+import {
+  DateFieldProps,
+  NotificationFieldProps,
+  SelectFieldProps,
+  UIStateProps,
+} from '@/src/pages/AddChoreScreen/model/types'
 
 interface FormFieldsProps {
-  // Space
-  space: string | null
-  spaceOptions: string[]
-  onSpaceChange: (value: string | null) => void
-
-  // Repeat
-  repeat: string | null
-  repeatOptions: string[]
-  onRepeatChange: (value: string | null) => void
-
-  // Dates
-  startDate: string | null
-  endDate: string | null
-  onStartDateChange: (date: string) => void
-  onEndDateChange: (date: string) => void
-  onStartDatePress: () => void
-  onEndDatePress: () => void
-
-  // Notification
-  notifyOn: boolean
-  onNotifyChange: (value: boolean) => void
-  ampm: '오전' | '오후'
-  hour12: number
-  minute: number
-  onTimeChange: (params: { ampm: '오전' | '오후'; hour: number; minute: number }) => void
-
-  // Dropdown
-  activeDropdown: string | null
-  setActiveDropdown: Dispatch<SetStateAction<string | null>>
-
-  // Helpers
-  toYYMMDD: (s?: string | null) => string
+  spaceField: SelectFieldProps
+  repeatField: SelectFieldProps
+  dateField: DateFieldProps
+  notificationField: NotificationFieldProps
+  uiState: UIStateProps
+  utils: { toYYMMDD: (s?: string | null) => string }
 }
 
 export default function FormFields(props: FormFieldsProps) {
-  const {
-    space,
-    spaceOptions,
-    onSpaceChange,
-    repeat,
-    repeatOptions,
-    onRepeatChange,
-    startDate,
-    endDate,
-    onStartDatePress,
-    onEndDatePress,
-    notifyOn,
-    onNotifyChange,
-    ampm,
-    hour12,
-    minute,
-    onTimeChange,
-    activeDropdown,
-    setActiveDropdown,
-    toYYMMDD,
-  } = props
+  const { spaceField, repeatField, dateField, notificationField, uiState, utils } = props
 
   return (
     <View style={styles.card}>
@@ -70,12 +29,12 @@ export default function FormFields(props: FormFieldsProps) {
         <Text style={styles.label}>공간</Text>
         <ChoreDropdown
           id="space"
-          options={spaceOptions}
-          value={space}
-          onChange={onSpaceChange}
+          options={spaceField.options}
+          value={spaceField.value}
+          onChange={spaceField.onChange}
           placeholder="선택"
-          activeDropdown={activeDropdown}
-          setActiveDropdown={setActiveDropdown}
+          activeDropdown={uiState.activeDropdown}
+          setActiveDropdown={uiState.setActiveDropdown}
         />
       </View>
 
@@ -86,58 +45,56 @@ export default function FormFields(props: FormFieldsProps) {
         <Text style={styles.label}>반복주기</Text>
         <ChoreDropdown
           id="repeat"
-          options={repeatOptions}
-          value={repeat}
-          onChange={onRepeatChange}
+          options={repeatField.options}
+          value={repeatField.value}
+          onChange={repeatField.onChange}
           placeholder="선택"
-          activeDropdown={activeDropdown}
-          setActiveDropdown={setActiveDropdown}
+          activeDropdown={uiState.activeDropdown}
+          setActiveDropdown={uiState.setActiveDropdown}
         />
       </View>
 
       <View style={styles.divider} />
 
-      {/* 시작 날짜 */}
+      {/* 시작일자 */}
       <View style={styles.rowBetween}>
-        <Text style={styles.label}>시작 날짜</Text>
-        <Pressable onPress={onStartDatePress}>
-          <Text style={styles.dateText}>{toYYMMDD(startDate)}</Text>
-        </Pressable>
+        <Text style={styles.label}>시작일자</Text>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={dateField.onStartPress}
+          style={styles.dateBtn}
+        >
+          <Text style={styles.dateBtnText}>{utils.toYYMMDD(dateField.start)}</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.divider} />
 
-      {/* 종료 날짜 */}
+      {/* 완료일자 */}
       <View style={styles.rowBetween}>
-        <Text style={styles.label}>종료 날짜</Text>
-        <Pressable onPress={onEndDatePress}>
-          <Text style={styles.dateText}>{toYYMMDD(endDate)}</Text>
-        </Pressable>
+        <Text style={styles.label}>완료일자</Text>
+        <TouchableOpacity activeOpacity={0.8} onPress={dateField.onEndPress} style={styles.dateBtn}>
+          <Text style={styles.dateBtnText}>{utils.toYYMMDD(dateField.end)}</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.divider} />
 
-      {/* 알림 */}
+      {/* 알림 토글 */}
       <View style={styles.rowBetween}>
         <Text style={styles.label}>알림</Text>
-        <Toggle value={notifyOn} onChange={onNotifyChange} />
+        <Toggle value={notificationField.enabled} onChange={notificationField.onToggle} />
       </View>
 
-      {notifyOn && (
-        <>
-          <View style={styles.divider} />
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>알림 시간</Text>
-            <TimeDropdown
-              ampm={ampm}
-              hour={hour12}
-              minute={minute}
-              onChange={onTimeChange}
-              activeDropdown={activeDropdown}
-              setActiveDropdown={setActiveDropdown}
-            />
-          </View>
-        </>
+      {notificationField.enabled && (
+        <TimeDropdown
+          ampm={notificationField.ampm}
+          hour={notificationField.hour12}
+          minute={notificationField.minute}
+          onChange={notificationField.onTimeChange}
+          activeDropdown={uiState.activeDropdown}
+          setActiveDropdown={uiState.setActiveDropdown}
+        />
       )}
     </View>
   )
@@ -146,27 +103,34 @@ export default function FormFields(props: FormFieldsProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 20,
-    marginTop: 16,
+    marginBottom: 16,
+    position: 'relative',
   },
   rowBetween: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1E2025',
-  },
-  dateText: {
-    fontSize: 16,
-    color: '#686F79',
+    fontWeight: '500',
+    color: '#363F4D',
   },
   divider: {
     height: 1,
-    backgroundColor: '#E6E8EB',
+    backgroundColor: '#E6E7E9',
+    marginVertical: 12,
+  },
+  dateBtn: {
+    backgroundColor: '#EBF9F9',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+  },
+  dateBtnText: {
+    fontSize: 14,
+    color: '#46A1A6',
   },
 })

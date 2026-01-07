@@ -5,16 +5,69 @@ import { formatKoreanDate } from '@/libs/utils/date'
 import { useChoreByDate, useChoreCalendar } from '@entities/chore'
 import { useMyPage } from '@entities/user'
 
-import ChoreListItem from './ChoreListItem'
 import { useChoreCalendarState } from '../model/useChoreCalendarState'
+import ChoreListItem from './ChoreListItem'
+
+function ChoreListLoading() {
+  return (
+    <View style={styles.listBox}>
+      <Text>집안일 내역을 불러오는 중입니다.</Text>
+    </View>
+  )
+}
+
+function ChoreListError() {
+  return (
+    <View style={styles.listBox}>
+      <Text>집안일 내역 불러오기에 실패했습니다.</Text>
+    </View>
+  )
+}
+
+function ChoreListEmpty({ userName }: { userName?: string }) {
+  return (
+    <View style={styles.listBox}>
+      <Text style={styles.itemTitle}>{userName || '사용자'}님의 하루 집안일을 계획해보세요</Text>
+    </View>
+  )
+}
+
+function Header({ selectedDate }: { selectedDate: string }) {
+  return (
+    <View style={styles.listHeaderRow}>
+      <Text style={styles.listHeaderTitle}>{formatKoreanDate(selectedDate)}</Text>
+      <Text style={styles.listHeaderSub}>집안일</Text>
+    </View>
+  )
+}
+
+function ChoreList({ selectedDate }: { selectedDate: string }) {
+  const { data: choresData = [], isLoading, isError } = useChoreByDate(selectedDate)
+  const { data: user } = useMyPage()
+  const choresList = choresData ?? []
+  const isChoreEmpty = choresList.length === 0
+
+  if (isLoading) return <ChoreListLoading />
+  if (isError) return <ChoreListError />
+  if (isChoreEmpty) return <ChoreListEmpty userName={user?.nickname} />
+
+  return (
+    <View style={styles.listBox}>
+      {choresList.map((item, index) => (
+        <ChoreListItem
+          key={item.id}
+          item={item}
+          selectedDate={selectedDate}
+          isLast={index === choresList.length - 1}
+        />
+      ))}
+    </View>
+  )
+}
 
 export default function ChoreCalendarWidget() {
   const { selectedDate, setSelectedDate, range, handleMonthChange } = useChoreCalendarState()
-  const { data: user } = useMyPage()
-
   const { data: dotDates = [] } = useChoreCalendar(range.start, range.end)
-  const { data: choresData = [], isLoading, isError } = useChoreByDate(selectedDate)
-  const choresList = choresData ?? []
 
   return (
     <>
@@ -23,31 +76,9 @@ export default function ChoreCalendarWidget() {
         dotDates={dotDates}
         onMonthChangeRange={handleMonthChange}
       />
-
       <View style={styles.flex}>
-        <View style={styles.listHeaderRow}>
-          <Text style={styles.listHeaderTitle}>{formatKoreanDate(selectedDate)}</Text>
-          <Text style={styles.listHeaderSub}>집안일</Text>
-        </View>
-
-        <View style={styles.listBox}>
-          {isLoading && <Text>집안일 내역을 불러오는 중입니다.</Text>}
-          {isError && <Text>집안일 내역 불러오기에 실패했습니다.</Text>}
-          {!isLoading && !isError && choresList.length === 0 ? (
-            <Text style={styles.itemTitle}>
-              {user?.nickname || '사용자'}님의 하루 집안일을 계획해보세요
-            </Text>
-          ) : (
-            choresList.map((item, index) => (
-              <ChoreListItem
-                key={item.id}
-                item={item}
-                selectedDate={selectedDate}
-                isLast={index === choresList.length - 1}
-              />
-            ))
-          )}
-        </View>
+        <Header selectedDate={selectedDate} />
+        <ChoreList selectedDate={selectedDate} />
       </View>
     </>
   )
