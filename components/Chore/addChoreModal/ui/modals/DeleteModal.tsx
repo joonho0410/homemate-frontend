@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native'
 
 import { RepeatType } from '@/types/chore'
@@ -5,8 +6,8 @@ import { RepeatType } from '@/types/chore'
 type Props = {
   visible: boolean
   onClose: () => void
-  onDeleteOnly: () => void
-  onDeleteAll: () => void
+  onDeleteOnly: () => void | Promise<void>
+  onDeleteAll: () => void | Promise<void>
   loading?: boolean
   repeatType?: RepeatType
 }
@@ -19,7 +20,29 @@ export default function DeleteModal({
   loading = false,
   repeatType = 'NONE',
 }: Props) {
+  const [isPressing, setIsPressing] = useState(false)
+  const isDisabled = loading || isPressing
   const noneRepeat = repeatType === 'NONE'
+
+  const handleDeleteOnly = async () => {
+    if (isDisabled) return
+    setIsPressing(true)
+    try {
+      await onDeleteOnly()
+    } finally {
+      setIsPressing(false)
+    }
+  }
+
+  const handleDeleteAll = async () => {
+    if (isDisabled) return
+    setIsPressing(true)
+    try {
+      await onDeleteAll()
+    } finally {
+      setIsPressing(false)
+    }
+  }
 
   return (
     <Modal
@@ -29,10 +52,7 @@ export default function DeleteModal({
       statusBarTranslucent
       onRequestClose={onClose}
     >
-      <Pressable
-        onPress={!loading ? onClose : undefined} // 로딩 중엔 바깥 탭 닫기 막기
-        style={styles.backdrop}
-      />
+      <Pressable onPress={!isDisabled ? onClose : undefined} style={styles.backdrop} />
       <View style={styles.sheet}>
         <Text style={styles.sheetHandle} />
 
@@ -41,22 +61,44 @@ export default function DeleteModal({
             <Text style={styles.bannerText}>일정을 삭제하시겠습니까?</Text>
           </View>
         ) : (
-          <Pressable onPress={onDeleteOnly} style={[styles.primaryBtn, styles.mb8]}>
-            <Text style={styles.primaryBtnText}>이 일정만 삭제</Text>
+          <Pressable
+            onPress={handleDeleteOnly}
+            disabled={isDisabled}
+            style={[styles.primaryBtn, styles.mb8, isDisabled && styles.disabledBtn]}
+          >
+            <Text style={[styles.primaryBtnText, isDisabled && styles.disabledBtnText]}>
+              이 일정만 삭제
+            </Text>
           </Pressable>
         )}
 
         {noneRepeat ? (
-          <Pressable onPress={onDeleteOnly} style={[styles.primaryBtn, styles.mb8]}>
-            <Text style={styles.primaryBtnText}>일정 삭제</Text>
+          <Pressable
+            onPress={handleDeleteOnly}
+            disabled={isDisabled}
+            style={[styles.primaryBtn, styles.mb8, isDisabled && styles.disabledBtn]}
+          >
+            <Text style={[styles.primaryBtnText, isDisabled && styles.disabledBtnText]}>
+              일정 삭제
+            </Text>
           </Pressable>
         ) : (
-          <Pressable onPress={onDeleteAll} style={[styles.primaryBtn, styles.mb8]}>
-            <Text style={styles.primaryBtnText}>향후 일정 삭제</Text>
+          <Pressable
+            onPress={handleDeleteAll}
+            disabled={isDisabled}
+            style={[styles.primaryBtn, styles.mb8, isDisabled && styles.disabledBtn]}
+          >
+            <Text style={[styles.primaryBtnText, isDisabled && styles.disabledBtnText]}>
+              향후 일정 삭제
+            </Text>
           </Pressable>
         )}
 
-        <Pressable onPress={onClose} style={styles.cancelBtn}>
+        <Pressable
+          onPress={!isDisabled ? onClose : undefined}
+          disabled={isDisabled}
+          style={styles.cancelBtn}
+        >
           <Text style={styles.cancelBtnText}>취소</Text>
         </Pressable>
       </View>
@@ -130,6 +172,12 @@ const styles = StyleSheet.create({
     color: '#46A1A6',
     fontWeight: '600',
     fontSize: 16,
+  },
+  disabledBtn: {
+    backgroundColor: '#E6E7E9',
+  },
+  disabledBtnText: {
+    color: '#B4B7BC',
   },
   mb8: { marginBottom: 8 },
 

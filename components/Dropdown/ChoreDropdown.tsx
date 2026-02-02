@@ -11,32 +11,26 @@ import {
 } from 'react-native'
 
 type DropdownProps = {
-  id: string
   options: string[]
   value: string | null
   onChange: (v: string) => void
   placeholder?: string
-  activeDropdown: string | null
-  setActiveDropdown: (v: string | null) => void
 }
 
 type Anchor = { x: number; y: number; w: number; h: number } | null
 
 export default function ChoreDropdown({
-  id,
   options,
   value,
   onChange,
   placeholder,
-  activeDropdown,
-  setActiveDropdown,
 }: DropdownProps) {
-  const isOpen = activeDropdown === id
+  const [isOpen, setIsOpen] = useState(false)
 
   const triggerRef = useRef<View>(null)
   const [anchor, setAnchor] = useState<Anchor>(null)
 
-  const close = () => setActiveDropdown(null)
+  const close = () => setIsOpen(false)
 
   const measureTrigger = () => {
     const inst = triggerRef.current as any
@@ -48,7 +42,7 @@ export default function ChoreDropdown({
   }
 
   const open = () => {
-    setActiveDropdown(id)
+    setIsOpen(true)
     setTimeout(measureTrigger, 0)
   }
 

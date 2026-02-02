@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
 type DropdownId = 'ampm' | 'hour' | 'minute'
@@ -8,9 +8,6 @@ type Props = {
   hour: number
   minute: number
   onChange: (v: { ampm: '오전' | '오후'; hour: number; minute: number }) => void
-  activeDropdown: string | null
-  setActiveDropdown: Dispatch<SetStateAction<string | null>>
-  styles?: any
 }
 
 export default function TimeDropdown({
@@ -18,9 +15,9 @@ export default function TimeDropdown({
   hour,
   minute,
   onChange,
-  activeDropdown,
-  setActiveDropdown,
 }: Props) {
+  const [activeDropdown, setActiveDropdown] = useState<DropdownId | null>(null)
+
   const toggleDropdown = (id: DropdownId) => {
     setActiveDropdown((prev) => (prev === id ? null : id))
   }

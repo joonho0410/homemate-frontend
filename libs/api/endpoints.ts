@@ -40,15 +40,27 @@ export const CHORE_ENDPOINTS = {
   /** 집안일 삭제 (인스턴스 단위, applyToAll 쿼리로 전체 적용 가능) */
   DELETE: (choreInstanceId: number, applyToAll?: boolean) =>
     `/chore/instance/${choreInstanceId}${applyToAll !== undefined ? `?applyToAll=${applyToAll}` : ''}`, // DELETE
+<<<<<<< HEAD
 
   /** 집안일 상세 조회 (수정을 위한 상세) */
   DETAIL: (choreInstanceId: number) => `/chore/instance/${choreInstanceId}`, // GET
+=======
+
+  /** 집안일 삭제 (choreId 기준, 루틴 전체 삭제) */
+  DELETE_BY_CHORE_ID: (choreId: number) => `/chore/${choreId}`, // DELETE ?applyToAfter=
+
+  /** 집안일 상세 조회 (수정을 위한 상세) */
+  DETAIL: (choreInstanceId: number) => `/chore/instance/${choreInstanceId}`, // GET
+  DETAIL_CHOREID: (choreId: number) => `/chore/${choreId}`,
+>>>>>>> 9560368 (refactor(chore): addChoreModal 리팩토링)
 
   /** 당일 집안일 리스트 조회 */
   LIST_BY_DATE: '/chore/instances', // GET ?date=YYYY-MM-DD
 
   /** 캘린더 집안일 유무 확인 */
   CALENDAR: '/chore/calendar', // GET ?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+
+  CATEGORY: '/chore', // GET ?[filter]&[space]&[repeat]&[repeatInterval]
 } as const
 
 export const RECOMMEND_ENDPOINTS = {

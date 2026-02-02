@@ -45,8 +45,8 @@ import { openAchievementModal } from '@/store/slices/achievementModalSlice'
 import { ResponseBadge } from '@/types/badge'
 import { RandomChoreList } from '@/types/recommend'
 
-import DeleteModal from './DeleteModal'
-import UpdateModal from './UpdateModal'
+import DeleteModal from './addChoreModal/ui/modals/DeleteModal'
+import UpdateModal from './addChoreModal/ui/modals/UpdateModal'
 
 // 이모지(특수문자) 불가
 const EMOJI_RE = /[\p{Extended_Pictographic}]/u
@@ -272,7 +272,8 @@ export default function AddChoreModal() {
   const closeAddChore = () => {
     if (Platform.OS === 'web') {
       // 웹(iOS Safari, PWA 포함)에서는 add-chore 히스토리를 홈으로 교체
-      router.replace('/(tabs)/home')
+      // router.replace('/(tabs)/home')
+      router.back()
     } else {
       // 앱(native)에서는 기존처럼 뒤로가기
       router.back()

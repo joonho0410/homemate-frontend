@@ -1,11 +1,11 @@
-// UpdateModal.tsx
+import { useState } from 'react'
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native'
 
 type Props = {
   visible: boolean
   onClose: () => void
-  onUpdateOnly: () => void
-  onUpdateAll: () => void
+  onUpdateOnly: () => void | Promise<void>
+  onUpdateAll: () => void | Promise<void>
   loading?: boolean
 }
 
@@ -16,22 +16,43 @@ export default function UpdateModal({
   onUpdateAll,
   loading = false,
 }: Props) {
+  const [isPressing, setIsPressing] = useState(false)
+  const isDisabled = loading || isPressing
+
+  const handleUpdateOnly = async () => {
+    if (isDisabled) return
+    setIsPressing(true)
+    try {
+      await onUpdateOnly()
+    } finally {
+      setIsPressing(false)
+    }
+  }
+
+  const handleUpdateAll = async () => {
+    if (isDisabled) return
+    setIsPressing(true)
+    try {
+      await onUpdateAll()
+    } finally {
+      setIsPressing(false)
+    }
+  }
+
   return (
     <Modal
       visible={visible}
       transparent
       animationType="slide"
       statusBarTranslucent
-      onRequestClose={onClose} // 안드로이드 백버튼
+      onRequestClose={onClose}
     >
       <View style={styles.container} pointerEvents="box-none">
-        {/* 어두운 배경 (바깥 탭 닫기) */}
         <Pressable
-          onPress={!loading ? onClose : undefined} // 로딩 중엔 바깥 탭 닫기 막기
+          onPress={!isDisabled ? onClose : undefined}
           style={styles.backdrop}
         />
 
-        {/* 시트 */}
         <View style={styles.sheet}>
           <Text style={styles.sheetHandle} />
 
@@ -39,26 +60,26 @@ export default function UpdateModal({
             <View style={styles.gap}>
               <View style={styles.mb8}>
                 <Pressable
-                  onPress={!loading ? onUpdateOnly : undefined}
-                  style={styles.primaryBtnTextWrap}
+                  onPress={handleUpdateOnly}
+                  disabled={isDisabled}
+                  style={[styles.primaryBtnTextWrap, isDisabled && styles.disabledBtn]}
                 >
-                  <Text style={styles.primaryBtnText}>이 일정만 수정</Text>
+                  <Text style={[styles.primaryBtnText, isDisabled && styles.disabledBtnText]}>이 일정만 수정</Text>
                 </Pressable>
               </View>
 
               <Pressable
-                onPress={!loading ? onUpdateAll : undefined}
-                style={styles.primaryBtnTextWrap}
+                onPress={handleUpdateAll}
+                disabled={isDisabled}
+                style={[styles.primaryBtnTextWrap, isDisabled && styles.disabledBtn]}
               >
-                <Text style={styles.primaryBtnText}>향후 일정 수정</Text>
+                <Text style={[styles.primaryBtnText, isDisabled && styles.disabledBtnText]}>향후 일정 수정</Text>
               </Pressable>
             </View>
           </View>
 
-          <Pressable style={styles.mt12}>
-            <Text onPress={!loading ? onClose : undefined} style={styles.cancelBtnText}>
-              취소
-            </Text>
+          <Pressable onPress={!isDisabled ? onClose : undefined} disabled={isDisabled} style={styles.mt12}>
+            <Text style={styles.cancelBtnText}>취소</Text>
           </Pressable>
         </View>
       </View>
@@ -88,12 +109,8 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-
-    // 터치와 레이어 우선순위 보장
     zIndex: 1000,
     elevation: 20,
-
-    // 그림자(ios)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.12,
@@ -119,6 +136,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   primaryBtnText: { color: '#46A1A6', fontWeight: '600', fontSize: 16 },
+  disabledBtn: {
+    backgroundColor: '#E6E7E9',
+  },
+  disabledBtnText: {
+    color: '#B4B7BC',
+  },
 
   mt12: { marginTop: 12 },
   mb8: { marginBottom: 8 },
@@ -131,7 +154,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 12,
     color: '#9B9FA6',
-
     fontWeight: '600',
     fontSize: 16,
   },

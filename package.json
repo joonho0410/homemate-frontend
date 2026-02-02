@@ -3,7 +3,11 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+<<<<<<< HEAD
     "start": "expo start --web -p 3000",
+=======
+    "start": "expo start --web --port 3000",
+>>>>>>> 9560368 (refactor(chore): addChoreModal 리팩토링)
     "build:web": "expo export --platform web --output-dir dist",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -17,6 +21,7 @@
   "dependencies": {
     "@expo-google-fonts/poetsen-one": "^0.4.0",
     "@expo/vector-icons": "^15.0.2",
+    "@hookform/resolvers": "^5.2.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/netinfo": "^11.4.1",
     "@react-navigation/native": "^7.1.8",
@@ -42,6 +47,7 @@
     "nativewind": "^2.0.11",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-hook-form": "^7.70.0",
     "react-native": "0.81.4",
     "react-native-calendars": "^1.1313.0",
     "react-native-css-interop": "^0.2.1",
@@ -54,7 +60,8 @@
     "react-native-swiper-flatlist": "^3.2.5",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.5.1",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@svgr/cli": "^8.1.0",
