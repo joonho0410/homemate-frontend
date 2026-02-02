@@ -284,6 +284,16 @@ export default function HomeScreen() {
             <View style={styles.listHeaderRow}>
               <Text style={styles.listHeaderTitle}>{formatKoreanDate(selectedDate)}</Text>
               <Text style={styles.listHeaderSub}>집안일</Text>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() =>
+                  router.push({
+                    pathname: '/(tabs)/show-allChore',
+                  })
+                }
+              >
+                <Text>더보기</Text>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.listBox}>

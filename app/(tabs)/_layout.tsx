@@ -209,6 +209,14 @@ export default function TabsLayout() {
         />
       </Tabs>
 
+      <Tabs.Screen
+        name="show-allChore"
+        options={{
+          href: null, // 탭 버튼 숨김
+          headerShown: false,
+        }}
+      />
+
       {!hideFab && <CenterAddButton />}
     </View>
   )
